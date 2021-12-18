@@ -19,7 +19,7 @@ class _AddStockProductCatState extends State<AddStockProductCat> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: MyConstant.primart,
-        title: Text('เพิ่มกลุ่มของสินค้า'),
+        title: const Text('เพิ่มกลุ่มของสินค้า'),
       ),
       body: Center(
         child: Form(
@@ -41,7 +41,7 @@ class _AddStockProductCatState extends State<AddStockProductCat> {
             checkOrAddGroup();
           }
         },
-        child: Text('Add Group'),
+        child: const Text('Add Group'),
       ),
     );
   }

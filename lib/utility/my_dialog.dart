@@ -10,13 +10,13 @@ class MyDialog {
       context: context,
       builder: (context) => AlertDialog(
         title: ListTile(
-          leading: ShowLogo(),
+          leading: const ShowLogo(),
           title: ShowText(
             title: title,
             textStyle: MyConstant().h2Style(),
           ),
           subtitle: ShowText(title: message),
-        ),actions: [TextButton(onPressed: ()=>Navigator.pop(context), child: Text('OK'))],
+        ),actions: [TextButton(onPressed: ()=>Navigator.pop(context), child: const Text('OK'))],
       ),
     );
   }

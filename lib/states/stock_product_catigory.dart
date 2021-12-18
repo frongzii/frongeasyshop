@@ -14,11 +14,11 @@ class StockProductCatigory extends StatefulWidget {
   _StockProductCatigoryState createState() => _StockProductCatigoryState();
 }
 
-
 class _StockProductCatigoryState extends State<StockProductCatigory> {
   bool load = true;
   bool? haveStock;
   List<StockModel> stockModels = [];
+  var docStocks = <String>[];
 
   @override
   void initState() {
@@ -52,6 +52,7 @@ class _StockProductCatigoryState extends State<StockProductCatigory> {
             StockModel model = StockModel.fromMap(item.data());
             setState(() {
               stockModels.add(model);
+              docStocks.add(item.id);
               haveStock = true;
               load = false;
             });
@@ -67,9 +68,9 @@ class _StockProductCatigoryState extends State<StockProductCatigory> {
       appBar: AppBar(
         actions: [
           IconButton(
-            onPressed: () =>
-                Navigator.pushNamed(context, MyConstant.routStockAddStockProductCat)
-                    .then((value) => readStock()),
+            onPressed: () => Navigator.pushNamed(
+                    context, MyConstant.routStockAddStockProductCat)
+                .then((value) => readStock()),
             icon: const Icon(Icons.add_box),
           ),
         ],
@@ -96,7 +97,10 @@ class _StockProductCatigoryState extends State<StockProductCatigory> {
         onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddProduct(stockModel: stockModels[index]),
+              builder: (context) => AddProduct(
+                stockModel: stockModels[index],
+                docStock: docStocks[index],
+              ),
             )),
         child: Card(
           child: Padding(

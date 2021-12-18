@@ -30,16 +30,18 @@ class _AuthenState extends State<Authen> {
           child: Center(
             child: Form(
               key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  buildLogo(),
-                  buildUser(),
-                  buildPassword(),
-                  buildLogin(),
-                  buildForgotPassword(),
-                  buildAccount()
-                ],
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    buildLogo(),
+                    buildUser(),
+                    buildPassword(),
+                    buildLogin(),
+                    buildForgotPassword(),
+                    buildAccount()
+                  ],
+                ),
               ),
             ),
           ),

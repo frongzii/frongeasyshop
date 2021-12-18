@@ -9,11 +9,13 @@ import 'package:frongeasyshop/states/contact_customer.dart';
 import 'package:frongeasyshop/states/create_account.dart';
 import 'package:frongeasyshop/states/edit_shop_profile.dart';
 import 'package:frongeasyshop/states/forgotpassword.dart';
+import 'package:frongeasyshop/states/insert_profile_shop.dart';
 import 'package:frongeasyshop/states/order_history.dart';
 import 'package:frongeasyshop/states/order_status.dart';
 import 'package:frongeasyshop/states/promotion.dart';
 import 'package:frongeasyshop/states/service_buyer.dart';
 import 'package:frongeasyshop/states/service_shopper.dart';
+import 'package:frongeasyshop/states/show_shop_for_buyer.dart';
 import 'package:frongeasyshop/states/stock_product.dart';
 import 'package:frongeasyshop/states/stock_product_catigory.dart';
 import 'package:frongeasyshop/utility/my_constant.dart';
@@ -27,13 +29,21 @@ Map<String, WidgetBuilder> map = {
   MyConstant.routForgotPassword: (BuildContext context) =>
       const ForgotPassword(),
   MyConstant.routStockProduct: (BuildContext context) => const StockProduct(),
-  MyConstant.routEditShopProFile:(BuildContext context)=> const EditShopProFile(),
-MyConstant.routStockProductCatigory:(BuildContext context)=> const StockProductCatigory(),
-MyConstant.routStockAddStockProductCat:(BuildContext context)=> const AddStockProductCat(), 
-MyConstant.routStockPromotion:(BuildContext context)=> const Promotion(),
-MyConstant.routOrderHistory:(BuildContext context)=> const OrderHistory(),
-MyConstant.routOrderStatus:(BuildContext context)=> const OrderStatus(),
-MyConstant.routContactCustomer:(BuildContext context)=> const ContactCustomer(),
+  MyConstant.routEditShopProFile: (BuildContext context) =>
+      const EditShopProFile(),
+  MyConstant.routStockProductCatigory: (BuildContext context) =>
+      const StockProductCatigory(),
+  MyConstant.routStockAddStockProductCat: (BuildContext context) =>
+      const AddStockProductCat(),
+  MyConstant.routStockPromotion: (BuildContext context) => const Promotion(),
+  MyConstant.routOrderHistory: (BuildContext context) => const OrderHistory(),
+  MyConstant.routOrderStatus: (BuildContext context) => const OrderStatus(),
+  MyConstant.routContactCustomer: (BuildContext context) =>
+      const ContactCustomer(),
+  MyConstant.routShowShopForBuyer: (BuildContext context) =>
+      const ShowShopForBuyer(),
+    MyConstant.routInsertProfileShop:(BuildContext context)=>const InsertProfileShop(),
+  MyConstant.routEditProfileshop:(BuildContext context)=>const EditShopProFile(),
 
 };
 

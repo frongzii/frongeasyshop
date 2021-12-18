@@ -1,23 +1,23 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:frongeasyshop/models/product_model.dart';
 import 'package:frongeasyshop/models/stock_model.dart';
 import 'package:frongeasyshop/utility/my_constant.dart';
+import 'package:frongeasyshop/utility/my_dialog.dart';
 import 'package:frongeasyshop/widgets/show_svg.dart';
 import 'package:frongeasyshop/widgets/show_text.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:frongeasyshop/models/stock_model.dart';
-import 'package:frongeasyshop/utility/my_constant.dart';
-import 'package:frongeasyshop/widgets/show_logo.dart';
-import 'package:frongeasyshop/widgets/show_svg.dart';
-import 'package:frongeasyshop/widgets/show_text.dart';
 
 class AddProduct extends StatefulWidget {
   final StockModel stockModel;
-  const AddProduct({Key? key, required this.stockModel}) : super(key: key);
+  final String docStock;
+  const AddProduct({Key? key, required this.stockModel, required this.docStock})
+      : super(key: key);
 
   @override
   _AddProductState createState() => _AddProductState();
@@ -27,12 +27,25 @@ class _AddProductState extends State<AddProduct> {
   StockModel? stockModel;
   File? file;
 
+  final formKey = GlobalKey<FormState>();
+  TextEditingController nameProductColtroller = TextEditingController();
+  TextEditingController amangProductColtroller = TextEditingController();
+  TextEditingController priceProductColtroller = TextEditingController();
+  String? docStock, uidUserlogin;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
     stockModel = widget.stockModel;
+    docStock = widget.docStock;
+    findUidUser();
+  }
+
+  Future<void> findUidUser() async {
+    await FirebaseAuth.instance.authStateChanges().listen((event) {
+      uidUserlogin = event!.uid;
+    });
   }
 
   @override
@@ -42,14 +55,25 @@ class _AddProductState extends State<AddProduct> {
         backgroundColor: MyConstant.primart,
         title: Text('เพิ่มสินค้า ในกลุ่ม ${stockModel!.cat}'),
       ),
-      body: Column(
-        children: [
-          buildImage(),
-          buildName(),
-          buildStock(),
-          buildPrice(),
-          buildSave(),
-        ],
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).requestFocus(
+          FocusScopeNode(),
+        ),
+        behavior: HitTestBehavior.opaque,
+        child: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                buildImage(),
+                buildName(),
+                buildStock(),
+                buildPrice(),
+                buildSave(),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -59,9 +83,16 @@ class _AddProductState extends State<AddProduct> {
       width: 250,
       child: ElevatedButton(
         onPressed: () {
-          ////ติด
+          if (formKey.currentState!.validate()) {
+            if (file == null) {
+              MyDialog().normalDialog(context, 'ยังไม่มีรูปภาพ',
+                  'กรุณา ถ่ายภาพ หรือ เลือกรูปภาพจากคลัง');
+            } else {
+              processUploadAndInsertProduct();
+            }
+          }
         },
-        child: Text('Save'),
+        child: const Text('Save'),
         style: MyConstant().myButtonStyle(),
       ),
     );
@@ -71,6 +102,14 @@ class _AddProductState extends State<AddProduct> {
     return Container(
       width: 250,
       child: TextFormField(
+        validator: (value) {
+          if (value!.isEmpty) {
+            return 'กรุณากรอกราคาสินค้า';
+          } else {
+            return null;
+          }
+        },
+        controller: priceProductColtroller,
         keyboardType: TextInputType.number,
         decoration: const InputDecoration(
           label: ShowText(title: 'ราคาของสินค้า'),
@@ -84,6 +123,14 @@ class _AddProductState extends State<AddProduct> {
     return Container(
       width: 250,
       child: TextFormField(
+        validator: (value) {
+          if (value!.isEmpty) {
+            return 'กรุณากรอกชื่อสินค้า';
+          } else {
+            return null;
+          }
+        },
+        controller: nameProductColtroller,
         decoration: const InputDecoration(
           label: ShowText(title: 'ชื่อสินค้า'),
           border: OutlineInputBorder(),
@@ -97,6 +144,14 @@ class _AddProductState extends State<AddProduct> {
       margin: EdgeInsets.symmetric(vertical: 16),
       width: 250,
       child: TextFormField(
+        validator: (value) {
+          if (value!.isEmpty) {
+            return 'กรุณากรอกจำนวนสินค้า';
+          } else {
+            return null;
+          }
+        },
+        controller: amangProductColtroller,
         keyboardType: TextInputType.number,
         decoration: const InputDecoration(
           label: ShowText(title: 'จำนวนสินค้า'),
@@ -104,14 +159,6 @@ class _AddProductState extends State<AddProduct> {
         ),
       ),
     );
-  }
-
-  Future<void> uploadPictureToStorage() async {
-    Random random = Random();
-    int i = random.nextInt(100000);
-    FirebaseStorage firebaseStorage = FirebaseStorage.instance;
-
-    ///ยังติดอยู่เพราะหา Storageref ไม่ได้
   }
 
   Future<void> processTakePhoto(ImageSource source) async {
@@ -143,5 +190,32 @@ class _AddProductState extends State<AddProduct> {
         ),
       ],
     );
+  }
+
+  Future<void> processUploadAndInsertProduct() async {
+    String nameFile = 'product${Random().nextInt(1000000)}.jpg';
+    FirebaseStorage storage = FirebaseStorage.instance;
+    Reference reference = storage.ref().child('Product/$nameFile');
+    UploadTask task = reference.putFile(file!);
+    await task.whenComplete(() async {
+      await reference.getDownloadURL().then((value) async {
+        var path = value.toString();
+        print('path ==> $path');
+        ProductModel model = ProductModel(
+            nameProduct: nameProductColtroller.text,
+            amountProduct: int.parse(amangProductColtroller.text),
+            priceProduct: int.parse(priceProductColtroller.text),
+            pathProduct: path);
+
+        await FirebaseFirestore.instance
+            .collection('user')
+            .doc(uidUserlogin)
+            .collection('stock')
+            .doc(docStock)
+            .collection('product')
+            .doc()
+            .set(model.toMap()).then((value) => Navigator.pop(context));
+      });
+    });
   }
 }
