@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:frongeasyshop/models/profile_shop_model.dart';
+import 'package:frongeasyshop/states/edit_profile_shop.dart';
 import 'package:frongeasyshop/utility/my_constant.dart';
 import 'package:frongeasyshop/widgets/show_process.dart';
 import 'package:frongeasyshop/widgets/show_text.dart';
@@ -15,8 +17,10 @@ class EditShopProFile extends StatefulWidget {
 
 class _EditShopProFileState extends State<EditShopProFile> {
   var load = true;
-  String? uidLogin;
+  String? uidLogin, docIdProfile;
   bool? haveProfile;
+
+  ProfileShopModel? profileShopModel;
 
   @override
   void initState() {
@@ -34,13 +38,19 @@ class _EditShopProFileState extends State<EditShopProFile> {
           .collection('profile')
           .get()
           .then((value) {
-        print('value ====>>>${value.docs}');
         if (value.docs.isEmpty) {
           setState(() {
             haveProfile = false;
             load = false;
           });
         } else {
+          for (var item in value.docs) {
+            docIdProfile = item.id;
+            setState(() {
+              profileShopModel = ProfileShopModel.fromMap(item.data());
+            });
+          }
+
           setState(() {
             haveProfile = true;
             load = false;
@@ -53,7 +63,8 @@ class _EditShopProFileState extends State<EditShopProFile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: haveProfile == null ? const SizedBox() :buttonInsertOrEdit(context),
+      floatingActionButton:
+          haveProfile == null ? const SizedBox() : buttonInsertOrEdit(context),
       appBar: AppBar(
         backgroundColor: MyConstant.primart,
         title: const Text('แก้ไขข้อมูลร้านค้า'),
@@ -61,7 +72,27 @@ class _EditShopProFileState extends State<EditShopProFile> {
       body: load
           ? ShowProcess()
           : haveProfile!
-              ? const Text('have Data')
+              ? profileShopModel == null
+                  ? const ShowProcess()
+                  : Center(
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            width: 200,
+                            height: 200,
+                            child: Image.network(profileShopModel!.pathImage),
+                          ),
+                          ShowText(
+                            title: profileShopModel!.nameShop,
+                            textStyle: MyConstant().h2Style(),
+                          ),
+                          ShowText(
+                            title: profileShopModel!.address,
+                            textStyle: MyConstant().h2Style(),
+                          ),
+                        ],
+                      ),
+                    )
               : Center(
                   child: ShowText(
                     title: 'No Profile',
@@ -75,12 +106,24 @@ class _EditShopProFileState extends State<EditShopProFile> {
     return ElevatedButton(
       onPressed: () {
         if (haveProfile!) {
-          Navigator.pushNamed(context, MyConstant.routEditProfileshop);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EditProfileShop(
+                docIdProfile: docIdProfile,
+              ),
+            ),
+          ).then(
+            (value) => readProfileshop(),
+          );
         } else {
-          Navigator.pushNamed(context, MyConstant.routInsertProfileShop);
+          Navigator.pushNamed(context, MyConstant.routInsertProfileShop)
+              .then((value) => readProfileshop());
         }
       },
-      child: Text('InsertProFile'),
+      child: haveProfile!
+          ? const Text('Edit Profile')
+          : const Text('Insert ProFile'),
     );
   }
 }

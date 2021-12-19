@@ -7,6 +7,7 @@ import 'package:frongeasyshop/states/add_stock_product_cat.dart';
 import 'package:frongeasyshop/states/authen.dart';
 import 'package:frongeasyshop/states/contact_customer.dart';
 import 'package:frongeasyshop/states/create_account.dart';
+import 'package:frongeasyshop/states/edit_profile_shop.dart';
 import 'package:frongeasyshop/states/edit_shop_profile.dart';
 import 'package:frongeasyshop/states/forgotpassword.dart';
 import 'package:frongeasyshop/states/insert_profile_shop.dart';
@@ -43,7 +44,7 @@ Map<String, WidgetBuilder> map = {
   MyConstant.routShowShopForBuyer: (BuildContext context) =>
       const ShowShopForBuyer(),
     MyConstant.routInsertProfileShop:(BuildContext context)=>const InsertProfileShop(),
-  MyConstant.routEditProfileshop:(BuildContext context)=>const EditShopProFile(),
+  MyConstant.routEditProfileshop:(BuildContext context)=>const EditProfileShop(),
 
 };
 
